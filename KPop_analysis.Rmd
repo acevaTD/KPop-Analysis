@@ -1,0 +1,17 @@
+---
+title: "KPop_analysis"
+author: "Aleix Cebrián Valero"
+date: "2026-03-15"
+output: html_document
+---
+
+```{r}
+library(readxl)
+df <- read_excel("data/KPopDataset.xlsx", 
+     col_types = c("skip", "date", "text", 
+         "text", "text", "text", "text", "text"),
+     n_max = 5638)
+summary(df)
+head(df)
+tail(df)
+```
