@@ -22,6 +22,68 @@ colnames(df)
 ```{r}
 library(stringr)
 df$Video <- str_sub(df$Video,30,40)
-df$Video
+tail(df$Video)
 ```
 
+```{r}
+library(tuber)
+library(readr)
+library(dplyr)
+
+
+app_id <- as.character(read.table("data/app_id.txt"))
+
+app_password <- as.character(read.table("data/app_password.txt"))
+
+yt_oauth(app_id = app_id, app_secret = app_password)
+
+Stats <- function(videos) {
+  # Calculamos el total para no "hardcodear" números
+  n_videos <- length(videos)
+  
+  # PRE-ASIGNACIÓN: Creamos vectores vacíos del tamaño exacto. 
+  # Esto hace que R sea muchísimo más rápido.
+  views_vec <- numeric(n_videos)
+  likes_vec <- numeric(n_videos)
+  
+  for (i in seq_len(n_videos)) {
+    # Imprimir progreso cada 100 videos para no saturar la consola
+    if (i %% 100 == 0) {
+      cat("Procesando video", i, "de", n_videos, "\n")
+    }
+    
+    # tryCatch evita que el script se detenga si hay un error con un video
+    tryCatch({
+      stat <- get_stats(video_id = videos[i])
+      
+      # Extraemos por nombre y convertimos a número
+      # Usamos is.null por si los likes están ocultos en algún video
+      views_vec[i] <- as.numeric(stat$viewCount)
+      likes_vec[i] <- ifelse(!is.null(stat$likeCount), as.numeric(stat$likeCount), NA)
+      
+    }, error = function(e) {
+      # Si el video es privado o borrado, ponemos NA y el bucle continúa
+      views_vec[i] <- NA
+      likes_vec[i] <- NA
+    })
+    
+    # Pausa de seguridad (opcional). Descomenta la siguiente línea si YouTube 
+    # te da error de "Too Many Requests" por ir demasiado rápido.
+    # Sys.sleep(0.1) 
+  }
+  
+  # Devolvemos una lista con los dos VECTORES
+  return(list(views_vec, likes_vec))
+}
+
+# Ejecutamos la función
+results <- Stats(df$Video)
+
+# Como ahora devolvemos vectores simples, la asignación es directa (sin unlist)
+df <- df %>% 
+  mutate(
+    Views = results[[1]], 
+    Likes = results[[2]]
+  )
+
+```
