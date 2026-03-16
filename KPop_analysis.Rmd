@@ -14,4 +14,14 @@ df <- read_excel("data/KPopDataset.xlsx",
 summary(df)
 head(df)
 tail(df)
+
+colnames(df) <- c("Date", "Artist", "Song_name", "Korean_name", "Video", "Type", "Release")
+colnames(df)
 ```
+
+```{r}
+library(stringr)
+df$Video <- str_sub(df$Video,30,40)
+df$Video
+```
+
