@@ -69,7 +69,7 @@ Stats <- function(videos) {
     
     # Pausa de seguridad (opcional). Descomenta la siguiente línea si YouTube 
     # te da error de "Too Many Requests" por ir demasiado rápido.
-    # Sys.sleep(0.1) 
+    Sys.sleep(0.1) 
   }
   
   # Devolvemos una lista con los dos VECTORES
@@ -87,3 +87,18 @@ df <- df %>%
   )
 
 ```
+
+```{r}
+library(ggplot2)
+
+ggplot(df_sorted, aes(x = Views)) + geom_histogram(bins = 100)
+ggplot(df_sorted, aes(x = Likes)) + geom_histogram(bins = 100)
+
+min(df$Date)
+max(df$Date)
+tail(df %>% count(Likes))
+
+
+df_sorted <- df %>% filter(Likes > 0) %>% filter(Views < mean(df$Views))
+```
+
